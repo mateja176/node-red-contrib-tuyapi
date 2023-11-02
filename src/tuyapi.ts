@@ -89,7 +89,7 @@ export default function (RED: NodeAPI): void {
       if (typeof clientId !== 'string' || !clientId) {
         return this.error({
           ...msg,
-          payload: '"clientId" must be a non-empty string',
+          error: '"clientId" must be a non-empty string',
         })
       }
 
@@ -97,7 +97,7 @@ export default function (RED: NodeAPI): void {
       if (typeof secret !== 'string' || !secret) {
         return this.error({
           ...msg,
-          payload: '"secret" must be a non-empty string',
+          error: '"secret" must be a non-empty string',
         })
       }
 
@@ -105,7 +105,7 @@ export default function (RED: NodeAPI): void {
       if (!isServer(server)) {
         return this.error({
           ...msg,
-          payload: '"server" must be a valid domain name',
+          error: '"server" must be a valid domain name',
         })
       }
 
@@ -113,7 +113,7 @@ export default function (RED: NodeAPI): void {
       if (typeof path !== 'string' || !path) {
         return this.error({
           ...msg,
-          payload: '"path" must be a non-empty string',
+          error: '"path" must be a non-empty string',
         })
       }
 
@@ -121,7 +121,7 @@ export default function (RED: NodeAPI): void {
       if (typeof method !== 'string' || !methods.includes(method as Method)) {
         return this.error({
           ...msg,
-          payload: `"method" must be one of "${methods.join(', ')}"`,
+          error: `"method" must be one of "${methods.join(', ')}"`,
         })
       }
 
@@ -133,7 +133,7 @@ export default function (RED: NodeAPI): void {
           if (typeof def.headers !== 'string') {
             return this.error({
               ...msg,
-              payload: '"headers" definition must be a string',
+              error: '"headers" definition must be a string',
             })
           }
           requestHeaders = JSON.parse(def.headers)
@@ -141,13 +141,13 @@ export default function (RED: NodeAPI): void {
       } catch (error) {
         return this.error({
           ...msg,
-          payload: 'failed to JSON parse "headers" definition',
+          error: 'failed to JSON parse "headers" definition',
         })
       }
       if (requestHeaders !== null && !isHeaders(requestHeaders)) {
         return this.error({
           ...msg,
-          payload: '"headers" must a string record property',
+          error: '"headers" must a string record property',
         })
       }
 
@@ -155,7 +155,7 @@ export default function (RED: NodeAPI): void {
       if (hasBody && !isBody(msg.payload)) {
         return this.error({
           ...msg,
-          payload: '"body" must be a non-nullable serializable object',
+          error: '"body" must be a non-nullable serializable object',
         })
       }
       const body = hasBody ? JSON.stringify(msg.payload) : ''
@@ -205,7 +205,7 @@ export default function (RED: NodeAPI): void {
                   } else {
                     return this.error({
                       ...msg,
-                      payload: {
+                      error: {
                         code: data.code,
                         message: data.msg,
                       },
@@ -217,7 +217,7 @@ export default function (RED: NodeAPI): void {
               } catch (error) {
                 return this.error({
                   ...msg,
-                  payload: {
+                  error: {
                     msg: 'Failed to parse chunks as JSON',
                     chunks,
                   },
@@ -226,7 +226,7 @@ export default function (RED: NodeAPI): void {
             } else {
               return this.error({
                 ...msg,
-                payload: {
+                error: {
                   code: response.statusCode,
                   msg: response.statusMessage,
                 },
@@ -236,7 +236,7 @@ export default function (RED: NodeAPI): void {
         },
       )
       request.on('error', (error) => {
-        return this.error({ ...msg, payload: error })
+        return this.error({ ...msg, error })
       })
 
       request.write(body)
