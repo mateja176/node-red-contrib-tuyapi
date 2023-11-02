@@ -87,27 +87,42 @@ export default function (RED: NodeAPI): void {
     this.on('input', (msg) => {
       const clientId = 'clientId' in msg ? msg.clientId : def.clientId
       if (typeof clientId !== 'string' || !clientId) {
-        return this.error('"clientId" must be a non-empty string')
+        return this.error({
+          ...msg,
+          payload: '"clientId" must be a non-empty string',
+        })
       }
 
       const secret = 'secret' in msg ? msg.secret : def.secret
       if (typeof secret !== 'string' || !secret) {
-        return this.error('"secret" must be a non-empty string')
+        return this.error({
+          ...msg,
+          payload: '"secret" must be a non-empty string',
+        })
       }
 
       const server = 'server' in msg ? msg.server : def.server
       if (!isServer(server)) {
-        return this.error('"server" must be a valid domain name')
+        return this.error({
+          ...msg,
+          payload: '"server" must be a valid domain name',
+        })
       }
 
       const path = 'path' in msg ? msg.path : def.path
       if (typeof path !== 'string' || !path) {
-        return this.error('"path" must be a non-empty string')
+        return this.error({
+          ...msg,
+          payload: '"path" must be a non-empty string',
+        })
       }
 
       const method = 'method' in msg ? msg.method : def.method
       if (typeof method !== 'string' || !methods.includes(method as Method)) {
-        return this.error(`"method" must be one of "${methods.join(', ')}"`)
+        return this.error({
+          ...msg,
+          payload: `"method" must be one of "${methods.join(', ')}"`,
+        })
       }
 
       let requestHeaders: unknown = null
@@ -116,20 +131,32 @@ export default function (RED: NodeAPI): void {
           requestHeaders = msg.headers
         } else if (def.headers) {
           if (typeof def.headers !== 'string') {
-            return this.error('"headers" definition must be a string')
+            return this.error({
+              ...msg,
+              payload: '"headers" definition must be a string',
+            })
           }
           requestHeaders = JSON.parse(def.headers)
         }
       } catch (error) {
-        return this.error('failed to JSON parse "headers" definition')
+        return this.error({
+          ...msg,
+          payload: 'failed to JSON parse "headers" definition',
+        })
       }
       if (requestHeaders !== null && !isHeaders(requestHeaders)) {
-        return this.error('"headers" must a string record property')
+        return this.error({
+          ...msg,
+          payload: '"headers" must a string record property',
+        })
       }
 
       const hasBody = msg.payload !== ''
       if (hasBody && !isBody(msg.payload)) {
-        return this.error('"body" must be a non-nullable serializable object')
+        return this.error({
+          ...msg,
+          payload: '"body" must be a non-nullable serializable object',
+        })
       }
       const body = hasBody ? JSON.stringify(msg.payload) : ''
 
@@ -177,8 +204,11 @@ export default function (RED: NodeAPI): void {
                     return this.send({ ...msg, payload: data.result })
                   } else {
                     return this.error({
-                      code: data.code,
-                      message: data.msg,
+                      ...msg,
+                      payload: {
+                        code: data.code,
+                        message: data.msg,
+                      },
                     })
                   }
                 } else {
@@ -186,21 +216,27 @@ export default function (RED: NodeAPI): void {
                 }
               } catch (error) {
                 return this.error({
-                  message: 'Failed to parse chunks as JSON',
-                  chunks,
+                  ...msg,
+                  payload: {
+                    msg: 'Failed to parse chunks as JSON',
+                    chunks,
+                  },
                 })
               }
             } else {
               return this.error({
-                statusCode: response.statusCode,
-                message: response.statusMessage,
+                ...msg,
+                payload: {
+                  code: response.statusCode,
+                  msg: response.statusMessage,
+                },
               })
             }
           })
         },
       )
       request.on('error', (error) => {
-        return this.error(error)
+        return this.error({ ...msg, payload: error })
       })
 
       request.write(body)
