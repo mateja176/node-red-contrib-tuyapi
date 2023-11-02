@@ -1,0 +1,57 @@
+<script>
+  __REGISTER__
+</script>
+
+<script type="text/html" data-template-name="tuyapi">
+  <div class="form-row">
+    <label for="node-input-client-id"
+      ><i class="fa fa-server"></i> Client ID</label
+    >
+    <input type="text" id="node-input-client-id" placeholder="" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-secret"><i class="fa fa-hashtag"></i> Secret</label>
+    <input type="text" id="node-input-secret" placeholder="" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-server"
+      ><i class="fa fa-hourglass-start"></i> Server</label
+    >
+    <input
+      type="text"
+      id="node-input-server"
+      placeholder="openapi.tuyaeu.com"
+    />
+  </div>
+  <div class="form-row">
+    <label for="node-input-path"
+      ><i class="fa fa-hourglass-start"></i> Path</label
+    >
+    <input
+      type="text"
+      id="node-input-path"
+      placeholder="/v1.0/token?grant_type=1"
+    />
+  </div>
+  <div class="form-row">
+    <label for="node-input-method"
+      ><i class="fa fa-hourglass-start"></i> Method</label
+    >
+    <input type="text" id="node-input-method" placeholder="GET" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-gqlquery"
+      ><i class="fa fa-cog"></i> <span>Query</span></label
+    >
+    <div
+      style="height: 250px;"
+      class="node-text-editor"
+      id="node-headers-editor"
+    />
+    <input type="hidden" id="node-headers-input" />
+  </div>
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-port" placeholder="tuyapi" />
+  </div>
+</script>

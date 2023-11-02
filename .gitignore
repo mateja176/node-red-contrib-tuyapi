@@ -1,0 +1,5 @@
+*.js
+!src/*.js
+*.html
+!src/*.html
+node_modules
