@@ -22,5 +22,5 @@
     "build:html": "esbuild --bundle --minify src/register.ts | bin/replace.ts > tuyapi.html",
     "build:ts": "esbuild --bundle --outdir=. --platform=node src/tuyapi.ts"
   },
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
