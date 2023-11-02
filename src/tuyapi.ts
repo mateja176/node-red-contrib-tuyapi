@@ -87,42 +87,30 @@ export default function (RED: NodeAPI): void {
     this.on('input', (msg) => {
       const clientId = 'clientId' in msg ? msg.clientId : def.clientId
       if (typeof clientId !== 'string' || !clientId) {
-        return this.error({
-          ...msg,
-          error: '"clientId" must be a non-empty string',
-        })
+        return this.error('"clientId" must be a non-empty string', msg)
       }
 
       const secret = 'secret' in msg ? msg.secret : def.secret
       if (typeof secret !== 'string' || !secret) {
-        return this.error({
-          ...msg,
-          error: '"secret" must be a non-empty string',
-        })
+        return this.error('"secret" must be a non-empty string', msg)
       }
 
       const server = 'server' in msg ? msg.server : def.server
       if (!isServer(server)) {
-        return this.error({
-          ...msg,
-          error: '"server" must be a valid domain name',
-        })
+        return this.error('"server" must be a valid domain name', msg)
       }
 
       const path = 'path' in msg ? msg.path : def.path
       if (typeof path !== 'string' || !path) {
-        return this.error({
-          ...msg,
-          error: '"path" must be a non-empty string',
-        })
+        return this.error('"path" must be a non-empty string', msg)
       }
 
       const method = 'method' in msg ? msg.method : def.method
       if (typeof method !== 'string' || !methods.includes(method as Method)) {
-        return this.error({
-          ...msg,
-          error: `"method" must be one of "${methods.join(', ')}"`,
-        })
+        return this.error(
+          `"method" must be one of "${methods.join(', ')}"`,
+          msg,
+        )
       }
 
       let requestHeaders: unknown = null
@@ -131,32 +119,23 @@ export default function (RED: NodeAPI): void {
           requestHeaders = msg.headers
         } else if (def.headers) {
           if (typeof def.headers !== 'string') {
-            return this.error({
-              ...msg,
-              error: '"headers" definition must be a string',
-            })
+            return this.error('"headers" definition must be a string', msg)
           }
           requestHeaders = JSON.parse(def.headers)
         }
       } catch (error) {
-        return this.error({
-          ...msg,
-          error: 'failed to JSON parse "headers" definition',
-        })
+        return this.error('failed to JSON parse "headers" definition', msg)
       }
       if (requestHeaders !== null && !isHeaders(requestHeaders)) {
-        return this.error({
-          ...msg,
-          error: '"headers" must a string record property',
-        })
+        return this.error('"headers" must a string record property', msg)
       }
 
       const hasBody = msg.payload !== ''
       if (hasBody && !isBody(msg.payload)) {
-        return this.error({
-          ...msg,
-          error: '"body" must be a non-nullable serializable object',
-        })
+        return this.error(
+          '"body" must be a non-nullable serializable object',
+          msg,
+        )
       }
       const body = hasBody ? JSON.stringify(msg.payload) : ''
 
@@ -203,40 +182,40 @@ export default function (RED: NodeAPI): void {
                   if (data.success) {
                     return this.send({ ...msg, payload: data.result })
                   } else {
-                    return this.error({
-                      ...msg,
-                      error: {
+                    return this.error(
+                      {
                         code: data.code,
                         message: data.msg,
                       },
-                    })
+                      msg,
+                    )
                   }
                 } else {
                   this.send({ ...msg, payload: data })
                 }
               } catch (error) {
-                return this.error({
-                  ...msg,
-                  error: {
+                return this.error(
+                  {
                     msg: 'Failed to parse chunks as JSON',
                     chunks,
                   },
-                })
+                  msg,
+                )
               }
             } else {
-              return this.error({
-                ...msg,
-                error: {
+              return this.error(
+                {
                   code: response.statusCode,
                   msg: response.statusMessage,
                 },
-              })
+                msg,
+              )
             }
           })
         },
       )
       request.on('error', (error) => {
-        return this.error({ ...msg, error })
+        return this.error(error, msg)
       })
 
       request.write(body)
