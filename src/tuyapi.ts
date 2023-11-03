@@ -4,7 +4,7 @@
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
 import crypto from 'crypto'
 import https from 'https'
-import type { NodeAPI, NodeDef, Node as NodeRed } from 'node-red'
+import type { NodeAPI, NodeDef, NodeMessage, Node as NodeRed } from 'node-red'
 import { type Method, methods } from './utils'
 
 interface TuyapiConfig {
@@ -182,40 +182,46 @@ export default function (RED: NodeAPI): void {
                   if (data.success) {
                     return this.send({ ...msg, payload: data.result })
                   } else {
-                    return this.error(
-                      {
-                        code: data.code,
-                        message: data.msg,
-                      },
-                      msg,
-                    )
+                    const error = {
+                      code: data.code,
+                      message: data.msg,
+                    }
+                    return this.error(error.message, {
+                      ...msg,
+                      errorObject: error,
+                    } as NodeMessage)
                   }
                 } else {
                   this.send({ ...msg, payload: data })
                 }
               } catch (error) {
-                return this.error(
-                  {
-                    msg: 'Failed to parse chunks as JSON',
-                    chunks,
-                  },
-                  msg,
-                )
+                const err = {
+                  message: 'Failed to parse chunks as JSON',
+                  chunks,
+                }
+                return this.error(err.message, {
+                  ...msg,
+                  errorObject: err,
+                } as NodeMessage)
               }
             } else {
-              return this.error(
-                {
-                  code: response.statusCode,
-                  msg: response.statusMessage,
-                },
-                msg,
-              )
+              const error = {
+                code: response.statusCode,
+                message: response.statusMessage,
+              }
+              return this.error(error.message, {
+                ...msg,
+                errorObject: error,
+              } as NodeMessage)
             }
           })
         },
       )
       request.on('error', (error) => {
-        return this.error(error, msg)
+        return this.error(error.message, {
+          ...msg,
+          errorObject: error,
+        } as NodeMessage)
       })
 
       request.write(body)
