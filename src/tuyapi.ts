@@ -39,9 +39,7 @@ const isBody = (body: unknown): body is Body => {
 
 type Server = string
 const isServer = (server: unknown): server is Server => {
-  return (
-    typeof server === 'string' && /^[a-z0-9-.]+(\.[a-z0-9-.]+)+$/.test(server)
-  )
+  return typeof server === 'string' && !!server
 }
 
 const isHeaders = (headers: unknown): headers is Record<string, string> => {
